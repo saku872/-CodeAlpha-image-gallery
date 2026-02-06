@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Gallery</title>
+
+<style>
+/* ---------- GLOBAL ---------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f4f4f4;
+  padding: 20px;
+  text-align: center;
+}
+
+/* ---------- FILTER BUTTONS ---------- */
+.filters {
+  margin-bottom: 20px;
+}
+
+.filters button {
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.filters button:hover {
+  background: #555;
+}
+
+/* ---------- GALLERY GRID ---------- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.gallery img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.gallery img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* ---------- LIGHTBOX ---------- */
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 80%;
+  border-radius: 10px;
+}
+
+.lightbox span {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 35px;
+  color: white;
+  cursor: pointer;
+}
+
+.nav {
+  position: absolute;
+  top: 50%;
+  color: white;
+  font-size: 40px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.prev { left: 30px; }
+.next { right: 30px; }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 600px) {
+  .gallery img {
+    height: 150px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h1>Image Gallery</h1>
+
+<!-- Filters -->
+<div class="filters">
+  <button onclick="filterImages('all')">All</button>
+  <button onclick="filterImages('nature')">Nature</button>
+  <button onclick="filterImages('city')">City</button>
+</div>
+
+<!-- Gallery -->
+<div class="gallery">
+  <img src="https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" data-category="nature">
+  <img src="https://plus.unsplash.com/premium_photo-1711434824963-ca894373272e?q=80&w=2030&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" data-category="nature">
+  <img src="https://as1.ftcdn.net/v2/jpg/04/53/31/70/1000_F_453317039_vgYyunvq6lALcAzte0pkE5Hz5gRGsPJr.jpg" data-category="city">
+  <img src="https://as1.ftcdn.net/v2/jpg/00/53/55/72/1000_F_53557205_UtYHI3bdq2I0gNxHL92p6KkLMmiXKH8e.jpg" data-category="city">
+  <img src="https://images.unsplash.com/photo-1527489377706-5bf97e608852?q=80&w=1259&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" data-category="nature">
+  <img src="https://as2.ftcdn.net/v2/jpg/05/84/76/73/1000_F_584767353_EXYOkE8NcX37UwV4WfBw7AjBaEtU6mMy.jpg" data-category="city">
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <span onclick="closeLightbox()">&times;</span>
+  <span class="nav prev" onclick="changeImage(-1)">&#10094;</span>
+  <img id="lightbox-img">
+  <span class="nav next" onclick="changeImage(1)">&#10095;</span>
+</div>
+
+<script>
+const images = document.querySelectorAll(".gallery img");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+let currentIndex = 0;
+
+// Open lightbox
+images.forEach((img, index) => {
+  img.addEventListener("click", () => {
+    currentIndex = index;
+    showImage();
+  });
+});
+
+function showImage() {
+  lightbox.style.display = "flex";
+  lightboxImg.src = images[currentIndex].src;
+}
+
+function closeLightbox() {
+  lightbox.style.display = "none";
+}
+
+function changeImage(direction) {
+  currentIndex += direction;
+  if (currentIndex < 0) currentIndex = images.length - 1;
+  if (currentIndex >= images.length) currentIndex = 0;
+  showImage();
+}
+
+// Filter images
+function filterImages(category) {
+  images.forEach(img => {
+    if (category === "all" || img.dataset.category === category) {
+      img.style.display = "block";
+    } else {
+      img.style.display = "none";
+    }
+  });
+}
+
+// Close on background click
+lightbox.addEventListener("click", e => {
+  if (e.target === lightbox) closeLightbox();
+});
+</script>
+
+</body>
+</html>
